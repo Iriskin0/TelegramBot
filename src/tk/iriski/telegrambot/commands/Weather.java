@@ -8,6 +8,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tk.iriski.telegrambot.Constants;
+import tk.iriski.telegrambot.telegram.Answer;
 
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -16,11 +17,11 @@ import java.util.Calendar;
 public class Weather extends Command {
     public Weather() {
         setKey("weather");
-        setDescription("Shows weather for choosen city. Example: weather city (date)");
+        setDescription("Shows weather for choosen city. Usage: weather city (date)");
     }
 
     @Override
-    public String start(String values[]) {
+    public void start(String values[], long chatId, long reply_id) throws Exception {
         StringBuilder answer = new StringBuilder();
         try {
             StringBuilder url = new StringBuilder();
@@ -43,7 +44,10 @@ public class Weather extends Command {
                 } else city.append(values[i]).append(' ');
             }
 
-            if (city.length() == 0) return "City is null";
+            if (city.length() == 0) {
+                new Answer("City is null", chatId, reply_id);
+                return;
+            }
             CloseableHttpClient client = HttpClientBuilder.create().build();
             url.append(Constants.WEATHER_API_URL).append("?q=").append(URLEncoder.encode(city.toString(), "UTF-8")).append("&showlocaltime=yes&num_of_days=1&format=json&date=")
                     .append(date).append("&key=").append(Constants.WEATHER_API_KEY);
@@ -75,6 +79,6 @@ public class Weather extends Command {
             e.printStackTrace();
         }
 
-        return answer.toString();
+        new Answer(answer.toString(), chatId, reply_id);
     }
 }

@@ -6,6 +6,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import tk.iriski.telegrambot.Constants;
+import tk.iriski.telegrambot.telegram.Answer;
 
 import java.net.URLEncoder;
 
@@ -15,7 +16,7 @@ public class Translate extends Command {
         setDescription("Translates some text to choosen language. Example: translate text ru");
     }
 
-    public String start(String values[]) {
+    public void start(String values[], long chatId, long reply_id) throws Exception {
         StringBuilder answer = new StringBuilder();
         try {
             String language = null;
@@ -25,7 +26,11 @@ public class Translate extends Command {
                 if (i == (values.length - 1) && values[i].length() == 2) language = values[i];
                 else text.append(values[i]).append(" ");
             }
-            if (language == null) return "Choose language.";
+            if (language == null) {
+                new Answer("Choose language.", chatId, reply_id);
+                return;
+            }
+
             String url = Constants.TRANSLATOR_URL.replace("%", language) + URLEncoder.encode(text.toString(), "UTF-8");
 
             CloseableHttpClient client = HttpClientBuilder.create().build();
@@ -43,6 +48,6 @@ public class Translate extends Command {
             e.printStackTrace();
         }
         if (answer.length() == 0) answer.append("Can't translate text");
-        return answer.toString();
+        new Answer(answer.toString(), chatId, reply_id);
     }
 }

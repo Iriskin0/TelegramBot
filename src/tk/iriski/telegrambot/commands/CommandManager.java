@@ -1,6 +1,6 @@
 package tk.iriski.telegrambot.commands;
 
-import tk.iriski.telegrambot.telegram.Answer;
+import tk.iriski.telegrambot.Constants;
 
 import java.util.HashSet;
 
@@ -12,25 +12,33 @@ public class CommandManager {
         allCommands.add(new Translate());
         allCommands.add(new Help());
         allCommands.add(new Weather());
+        if (Constants.DATABASE_ENABLE) {
+            try {
+                allCommands.add(new Messages());
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 
-    public static void parseCommand(String line, long chatId, long reply_id) throws Exception {
+    public static String[] parseCommand(String line) throws Exception {
+        return line.split("\\s+");
+    }
 
-        String[] temp = line.split("\\s+");
+    public static void work(String[] temp, long chatId, long reply_id, String username) throws Exception {
         String[] temp2 = new String[temp.length - 1];
         for (int i = 0; i < temp.length - 1; i++) {
             temp2[i] = temp[i + 1];
         }
         for (Command c : allCommands) {
             if (temp[0].equals(c.getKey())) {
-                new Answer(c.start(temp2), chatId, reply_id);
-                //new Answer("test", chatId, reply_id);
+                if (c.getKey().equals("messages")) ((Messages) c).start(temp2, chatId, reply_id, username);
+                else c.start(temp2, chatId, reply_id);
                 break;
             }
         }
-
     }
-
     public static String getKeys() {
         StringBuilder sb = new StringBuilder();
         sb.append("{ ");

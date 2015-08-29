@@ -16,10 +16,12 @@ import java.util.ArrayList;
 public class Main {
     private static String method = "/getUpdates";
     private static long timeBetweenUpdates = 500;
+    private static Database database;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         long offset = 0L;
         CommandManager.init();
+        if (Constants.DATABASE_ENABLE) database = new Database();
         while (true) {
             offset = getUpdates(offset);
         }
@@ -51,10 +53,22 @@ public class Main {
                 if (!resultObject.isNull("message")) {
                     JSONObject messageObject = resultObject.getJSONObject("message");
                     String text = "";
-                    if (!messageObject.isNull("text") && (text = messageObject.getString("text")).toLowerCase().startsWith(Constants.COMMAND_STARTS_WITH)) {
+                    if (!messageObject.isNull("text")) {
                         long message_id = messageObject.getLong("message_id");
-                        long chatId = messageObject.getJSONObject("from").getLong("id");
-                        CommandManager.parseCommand(text.substring(Constants.COMMAND_STARTS_WITH.length()).toLowerCase(), chatId, message_id);
+                        long chatId = messageObject.getJSONObject("chat").getLong("id");
+                        JSONObject from = messageObject.getJSONObject("from");
+                        String username = null;
+                        if (from.isNull("username")) {
+                            username = String.valueOf(from.getLong("id"));
+                        } else {
+                            username = from.getString("username");
+                        }
+                        database.updateUserMessages(username, from.getLong("id"), chatId);
+                        if ((text = messageObject.getString("text")).toLowerCase().startsWith(Constants.COMMAND_STARTS_WITH)) {
+                            String[] temp = CommandManager.parseCommand(text.substring(Constants.COMMAND_STARTS_WITH.length()).toLowerCase());
+                            CommandManager.work(temp, chatId, message_id, username);
+                        }
+
                     }
                 }
             }

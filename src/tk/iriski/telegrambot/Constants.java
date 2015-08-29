@@ -6,7 +6,7 @@ public class Constants {
     public static final int NUMBER_OF_THREADS = 20;
     public static final String WEATHER_API_KEY = "5a7fb018ffaaee995794c0a676708";
 
-    public static final boolean DATABASE_ENABLE = false; //don't touch other database config if you not need it
+    public static final boolean DATABASE_ENABLE = true; //don't touch other database config if you not need it
     public static final String DATABASE_STRING = "jdbc:mysql://127.0.0.1:3306/telegram";
     public static final String DATABASE_LOGIN = "root";
     public static final String DATABASE_PASS = "";

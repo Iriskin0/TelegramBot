@@ -1,11 +1,13 @@
 package tk.iriski.telegrambot.commands;
 
+import tk.iriski.telegrambot.telegram.Answer;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 public class Ping extends Command {
     String key = "ping";
-    String description = "Pings some server from bot's host";
+    String description = "Pings some server from bot's host. Usage: ping server";
     private String server = null;
     private long chatId = 0;
     private long reply_id = 0;
@@ -16,9 +18,12 @@ public class Ping extends Command {
     }
 
     @Override
-    public String start(String values[]) {
+    public void start(String values[], long chatId, long reply_id) throws Exception {
         System.out.println("User requested ping:");
-        if (values.length < 2) return "Please input server";
+        if (values.length < 2) {
+            new Answer("Please input server", chatId, reply_id);
+            return;
+        }
         server = values[1].replace("\"", "").replace("'", "").replace(";", "").toLowerCase();
         StringBuilder sb = new StringBuilder();
 
@@ -34,6 +39,6 @@ public class Ping extends Command {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return sb.toString();
+        new Answer(sb.toString(), chatId, reply_id);
     }
 }
