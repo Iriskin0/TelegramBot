@@ -28,7 +28,6 @@ public class Main {
     }
 
     public static long getUpdates(long update_id) {
-        long offset = update_id; // omg'''
         try {
             CloseableHttpClient client = HttpClientBuilder.create().build();
             HttpPost request = new HttpPost(Constants.TELEGRAM_API_URL + Constants.TELEGRAM_API_KEY + method);
@@ -48,8 +47,7 @@ public class Main {
             JSONArray responseArray = responseObject.getJSONArray("result");
             for (int i = 0; i < responseArray.length(); i++) {
                 JSONObject resultObject = responseArray.getJSONObject(i);
-                offset = resultObject.getLong("update_id");
-                System.out.println(offset);
+                update_id = resultObject.getLong("update_id");
                 if (!resultObject.isNull("message")) {
                     JSONObject messageObject = resultObject.getJSONObject("message");
                     String text = "";
@@ -81,6 +79,6 @@ public class Main {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
-        return offset;
+        return update_id;
     }
 }
